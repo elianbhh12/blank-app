@@ -265,9 +265,6 @@ def get_tmdb_info(title, content_type='movie'):
         st.write(f"Error al consultar TMDB: {response.status_code}")
     return None
 
-# Función para mostrar archivos de Real Debrid y separar por calidad
-import os
-
 # Función para verificar si el archivo ya tiene extensión y agregar ".mkv" si no tiene
 def ensure_mkv_extension(file_name):
     # Verificar si el archivo ya tiene una extensión
