@@ -212,7 +212,7 @@ def classify_files_by_quality(files):
     return quality_groups
 # Función para mostrar archivos de Real Debrid y separar por calidad
 def show_real_debrid_files():
-    st.write("Archivos disponibles en Real Debrid:")
+    st.write("Archivos disponibles:")
     files = get_real_debrid_files()
 
     if not files:
