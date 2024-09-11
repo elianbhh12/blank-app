@@ -3,7 +3,7 @@ import requests
 from lxml import html
 import urllib.parse
 import re
-import os
+
 
 # Eliminar los colores de consola porque no se utilizan en Streamlit
 REAL_DEBRID_FOLDER_URL = 'https://my.real-debrid.com/PS6APRK7YUCDS/torrents/'
@@ -265,14 +265,6 @@ def get_tmdb_info(title, content_type='movie'):
         st.write(f"Error al consultar TMDB: {response.status_code}")
     return None
 
-
-# Función para verificar si el archivo ya tiene una extensión y agregar ".mkv" si no tiene
-def ensure_mkv_extension(file_name):
-    # Verificar si el archivo ya tiene una extensión
-    if not os.path.splitext(file_name)[1]:  # Si no tiene extensión
-        return f"{file_name}.mkv"
-    return file_name
-
 # Función para mostrar archivos de Real Debrid y separar por calidad
 def show_real_debrid_files():
     st.write("Archivos disponibles:")
@@ -309,7 +301,8 @@ def show_real_debrid_files():
             # Extraer el nombre del archivo y obtener el título y año
             file_name = selected_file_info['name'].rstrip('/')  # Asegurarse de que no termine en "/"
             movie_title, movie_year = extract_movie_title_and_year(file_name)  # Extraer título y año correctamente
-            
+           # st.write(f"Título extraído: {movie_title}, Año extraído: {movie_year}")  # Para depuración
+
             # Mostrar la información de la película desde TMDB
             movie_info = get_tmdb_info(movie_title, 'movie')  # Usar el título de la película para buscar en TMDB
             if movie_info:
@@ -319,11 +312,8 @@ def show_real_debrid_files():
                     poster_url = f"https://image.tmdb.org/t/p/w500{movie_info['poster_path']}"
                     st.image(poster_url, width=200)
 
-            # Verificar si el archivo tiene una extensión y añadir ".mkv" si es necesario
-            file_name_with_extension = ensure_mkv_extension(file_name)
-            
             # Concatenar el nombre del archivo con el enlace
-            download_link = f"{selected_file_info['link']}/{file_name_with_extension}"
+            download_link = f"{selected_file_info['link']}{file_name}.mkv"
             
             # Mostrar el enlace de descarga modificado
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
@@ -349,6 +339,7 @@ def show_real_debrid_files():
             # Extraer el nombre del archivo y obtener el título y año
             file_name = selected_episode_info['name']
             series_title, series_year = extract_series_title_and_year(series_seleccionada)
+           # st.write(f"Título extraído: {series_title}, Año extraído: {series_year}")  # Para depuración
             
             # Mostrar la información de la serie desde TMDB
             series_info = get_tmdb_info(series_title, 'tv')  # Usar el título de la serie para buscar en TMDB
@@ -359,14 +350,9 @@ def show_real_debrid_files():
                     poster_url = f"https://image.tmdb.org/t/p/w500{series_info['poster_path']}"
                     st.image(poster_url, width=200)
             
-            # Verificar si el archivo tiene una extensión y añadir ".mkv" si es necesario
-            file_name_with_extension = ensure_mkv_extension(file_name)
-            
-            # Concatenar el nombre del archivo con el enlace
-            download_link = f"{selected_episode_info['link']}/{file_name_with_extension}"
-            
             # Mostrar la calidad del episodio seleccionado
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
+            download_link = f"{selected_episode_info['link']}{file_name}.mkv"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
 
 
