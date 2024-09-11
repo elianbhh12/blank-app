@@ -210,6 +210,25 @@ def classify_files_by_quality(files):
             quality_groups["Otra calidad"].append(file)
 
     return quality_groups
+
+
+def get_tmdb_info(title, content_type='movie'):
+    api_key = '242e044e9ed025098133698da4df3b87'
+    search_url = f"https://api.themoviedb.org/3/search/{content_type}?api_key={api_key}&query={urllib.parse.quote(title)}"
+    
+    response = requests.get(search_url)
+    if response.status_code == 200:
+        data = response.json()
+        if data['results']:
+            result = data['results'][0]  # Tomar el primer resultado
+            info = {
+                'title': result.get('title', result.get('name', '')),
+                'overview': result.get('overview', 'No description available.'),
+                'poster_path': result.get('poster_path', '')
+            }
+            return info
+    return None
+
 # Función para mostrar archivos de Real Debrid y separar por calidad
 def show_real_debrid_files():
     st.write("Archivos disponibles:")
@@ -250,13 +269,19 @@ def show_real_debrid_files():
             if not file_name.lower().endswith(".mkv"):
                 file_name += ".mkv"
             
-            #st.write(f"Calidad: {calidad_seleccionada}")
+            # Mostrar la información de la película desde TMDB
+            movie_info = get_tmdb_info(file_name.split('.')[0], 'movie')  # Usar el nombre del archivo para buscar en TMDB
+            if movie_info:
+                st.write(f"**Título:** {movie_info['title']}")
+                st.write(f"**Sinopsis:** {movie_info['overview']}")
+                if movie_info['poster_path']:
+                    poster_url = f"https://image.tmdb.org/t/p/w500{movie_info['poster_path']}"
+                    st.image(poster_url, width=200)
+
             # Concatenar el nombre del archivo con el enlace
             download_link = f"{selected_file_info['link']}{file_name}"
             
-            # Mostrar el enlace de descarga modificado y la calidad del archivo
-
-            # Añadir un campo de texto con el enlace (esto puede usarse si el usuario prefiere copiar manualmente)
+            # Mostrar el enlace de descarga modificado
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
         else:
             st.write(f"No se encontraron archivos en la calidad {calidad_seleccionada}.")
@@ -272,21 +297,26 @@ def show_real_debrid_files():
             episode_options = [f"Temporada {ep['season']} Episodio {ep['episode']}" for ep in episodes]
             selected_episode = st.selectbox("Selecciona un episodio:", episode_options)
 
-            # Corregir cómo se obtiene la información del episodio seleccionado
-            selected_episode_info = next(
-                ep for ep in episodes if f"Temporada {ep['season']} Episodio {ep['episode']}" == selected_episode
-            )
+            # Obtener la información del episodio seleccionado
+            selected_episode_info = next(ep for ep in episodes if f"Temporada {ep['season']} Episodio {ep['episode']}" == selected_episode)
             
             # Extraer el nombre del archivo y añadir ".mkv" si no está
             file_name = selected_episode_info['name']
             if not file_name.lower().endswith(".mkv"):
                 file_name += ".mkv"
             
-            # Concatenar el nombre del archivo con el enlace
-            download_link = f"{selected_episode_info['link']}{file_name}"
+            # Mostrar la información de la serie desde TMDB
+            series_info = get_tmdb_info(series_seleccionada, 'tv')  # Usar el nombre de la serie para buscar en TMDB
+            if series_info:
+                st.write(f"**Título:** {series_info['title']}")
+                st.write(f"**Sinopsis:** {series_info['overview']}")
+                if series_info['poster_path']:
+                    poster_url = f"https://image.tmdb.org/t/p/w500{series_info['poster_path']}"
+                    st.image(poster_url, width=200)
             
             # Mostrar la calidad del episodio seleccionado
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
+            download_link = f"{selected_episode_info['link']}{file_name}"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
 
 
