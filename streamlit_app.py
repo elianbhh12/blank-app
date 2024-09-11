@@ -161,9 +161,18 @@ def show_real_debrid_files():
     file_options = [f"{file['name']}" for file in files]
     selected_file = st.selectbox("Selecciona un archivo:", file_options)
 
-    # Mostrar enlace del archivo seleccionado
+    # Obtener la información del archivo seleccionado
     selected_file_info = next(file for file in files if file['name'] == selected_file)
-    st.write(f"Enlace de descarga: {selected_file_info['link']}")
+    
+    # Extraer el nombre del archivo después del último "/"
+    file_name = selected_file_info['name'].rstrip('/')  # Asegurarse de que no termine en "/"
+    
+    # Concatenar el nombre del archivo con la extensión ".mkv"
+    download_link = f"{selected_file_info['link']}{file_name}.mkv"
+    
+    # Mostrar enlace de descarga modificado
+    st.write(f"Enlace de descarga: {download_link}")
+
 
 # Función principal
 def main():
