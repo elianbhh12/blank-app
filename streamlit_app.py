@@ -293,7 +293,7 @@ def show_real_debrid_files():
 
 # Función principal
 def main():
-    st.title("Buscador de Películas y Series")
+    st.title("Xstreaming")
 
     content_type = st.radio("Elige una opción:", ('Películas', 'Series', 'Lista de peliculas o series'))
 
