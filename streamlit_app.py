@@ -265,6 +265,8 @@ def get_tmdb_info(title, content_type='movie'):
         st.write(f"Error al consultar TMDB: {response.status_code}")
     return None
 
+import os
+
 # Función para verificar si el archivo ya tiene extensión y agregar ".mkv" si no tiene
 def ensure_mkv_extension(file_name):
     # Verificar si el archivo ya tiene una extensión
@@ -321,8 +323,11 @@ def show_real_debrid_files():
             # Verificar si el archivo tiene una extensión y añadir ".mkv" si es necesario
             file_name_with_extension = ensure_mkv_extension(file_name)
             
-            # Concatenar el nombre del archivo con el enlace
-            download_link = f"{selected_file_info['link']}{file_name_with_extension}"
+            # Concatenar el nombre del archivo con el enlace, si no tiene ya el nombre completo
+            if not selected_file_info['link'].endswith(file_name_with_extension):
+                download_link = f"{selected_file_info['link']}/{file_name_with_extension}"
+            else:
+                download_link = selected_file_info['link']
             
             # Mostrar el enlace de descarga modificado
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
@@ -361,10 +366,16 @@ def show_real_debrid_files():
             # Verificar si el archivo tiene una extensión y añadir ".mkv" si es necesario
             file_name_with_extension = ensure_mkv_extension(file_name)
             
+            # Concatenar el nombre del archivo con el enlace, si no tiene ya el nombre completo
+            if not selected_episode_info['link'].endswith(file_name_with_extension):
+                download_link = f"{selected_episode_info['link']}/{file_name_with_extension}"
+            else:
+                download_link = selected_episode_info['link']
+            
             # Mostrar la calidad del episodio seleccionado
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
-            download_link = f"{selected_episode_info['link']}{file_name_with_extension}"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
+
 
 
 
