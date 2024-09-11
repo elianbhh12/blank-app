@@ -168,6 +168,14 @@ def classify_movies_and_series(files):
             season = int(match.group('season'))
             episode = int(match.group('episode'))
 
+            # Detectar calidad en el nombre del archivo
+            if "4k" in file_name.lower() or "2160p" in file_name.lower():
+                quality = "4k"
+            elif "1080p" in file_name.lower():
+                quality = "1080p"
+            else:
+                quality = "Otra calidad"
+
             # Agregar series al diccionario agrupado por nombre de la serie
             if series_name not in series:
                 series[series_name] = []
@@ -175,7 +183,8 @@ def classify_movies_and_series(files):
                 "name": file_name,
                 "season": season,
                 "episode": episode,
-                "link": file['link']
+                "link": file['link'],
+                "quality": quality  # Agregar calidad al diccionario
             })
         else:
             # Si no es una serie, es una película
@@ -283,7 +292,7 @@ def show_real_debrid_files():
 def main():
     st.title("Buscador de Películas y Series")
 
-    content_type = st.radio("Elige una opción:", ('Películas', 'Series', 'Ver lista de Real Debrid'))
+    content_type = st.radio("Elige una opción:", ('Películas', 'Series', 'Lista de peliculas o series'))
 
     if content_type == 'Ver lista de Real Debrid':
         show_real_debrid_files()
