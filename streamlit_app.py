@@ -3,7 +3,7 @@ import requests
 from lxml import html
 import urllib.parse
 import re
-
+import os
 
 # Eliminar los colores de consola porque no se utilizan en Streamlit
 REAL_DEBRID_FOLDER_URL = 'https://my.real-debrid.com/PS6APRK7YUCDS/torrents/'
