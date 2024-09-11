@@ -313,7 +313,7 @@ def show_real_debrid_files():
                     st.image(poster_url, width=200)
 
             # Concatenar el nombre del archivo con el enlace
-            download_link = f"{selected_file_info['link']}{file_name}"
+            download_link = f"{selected_file_info['link']}{file_name}.mkv""
             
             # Mostrar el enlace de descarga modificado
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
@@ -352,7 +352,7 @@ def show_real_debrid_files():
             
             # Mostrar la calidad del episodio seleccionado
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
-            download_link = f"{selected_episode_info['link']}{file_name}..mkv"
+            download_link = f"{selected_episode_info['link']}{file_name}.mkv"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
 
 
