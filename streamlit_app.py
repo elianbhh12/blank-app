@@ -294,7 +294,7 @@ def main():
 
     content_type = st.radio("Elige una opción:", ('Películas', 'Series', 'Lista de peliculas o series'))
 
-    if content_type == 'Ver lista de Real Debrid':
+    if content_type == 'Lista de peliculas o series:
         show_real_debrid_files()
         return
 
