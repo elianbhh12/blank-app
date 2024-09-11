@@ -271,15 +271,12 @@ def show_real_debrid_files():
             # Obtener los episodios de la serie seleccionada
             episodes = series[series_seleccionada]
             episode_options = [f"Temporada {ep['season']} Episodio {ep['episode']}" for ep in episodes]
-selected_episode = st.selectbox(
-    "Selecciona un episodio:",
-    episode_options
-)
+            selected_episode = st.selectbox("Selecciona un episodio:", episode_options)
 
-            # Obtener la información del episodio seleccionado
+            # Corregir cómo se obtiene la información del episodio seleccionado
             selected_episode_info = next(
-    ep for ep in episodes if f"Temporada {ep['season']} Episodio {ep['episode']} - {ep['quality']}" == selected_episode
-)
+                ep for ep in episodes if f"Temporada {ep['season']} Episodio {ep['episode']}" == selected_episode
+            )
             
             # Extraer el nombre del archivo y añadir ".mkv" si no está
             file_name = selected_episode_info['name']
@@ -292,6 +289,7 @@ selected_episode = st.selectbox(
             # Mostrar el enlace de descarga del episodio
             st.write(f"Enlace de descarga: {download_link}")
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
+
 
 # Función principal
 def main():
