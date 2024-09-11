@@ -250,14 +250,12 @@ def show_real_debrid_files():
             if not file_name.lower().endswith(".mkv"):
                 file_name += ".mkv"
             
-            st.write(f"Calidad: {calidad_seleccionada}")
+            #st.write(f"Calidad: {calidad_seleccionada}")
             # Concatenar el nombre del archivo con el enlace
             download_link = f"{selected_file_info['link']}{file_name}"
             
             # Mostrar el enlace de descarga modificado y la calidad del archivo
-        
 
-            
             # Añadir un campo de texto con el enlace (esto puede usarse si el usuario prefiere copiar manualmente)
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
         else:
@@ -287,12 +285,11 @@ def show_real_debrid_files():
             # Concatenar el nombre del archivo con el enlace
             download_link = f"{selected_episode_info['link']}{file_name}"
             
-            # Mostrar el enlace de descarga del episodio
-            st.write(f"Enlace de descarga: {download_link}")
-            st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
-
             # Mostrar la calidad del episodio seleccionado
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
+            st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
+
+
 
 
 
