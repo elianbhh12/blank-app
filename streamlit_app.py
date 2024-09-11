@@ -148,6 +148,42 @@ def get_real_debrid_files(url=REAL_DEBRID_FOLDER_URL):
 
     return files
 
+# Función para clasificar archivos en películas y series
+def classify_movies_and_series(files):
+    movies = []
+    series = {}
+
+    # Patrón para detectar series en formato NAME.SXXEXX.YEAR
+    series_pattern = re.compile(r'(?P<name>.+)\.S(?P<season>\d{2})E(?P<episode>\d{2})\.\d{4}')
+
+    for file in files:
+        file_name = file['name'].rstrip('/')
+
+        # Buscar si es una serie
+        match = series_pattern.match(file_name)
+        if match:
+            series_name = match.group('name')
+            season = int(match.group('season'))
+            episode = int(match.group('episode'))
+
+            # Agregar series al diccionario agrupado por nombre de la serie
+            if series_name not in series:
+                series[series_name] = []
+            series[series_name].append({
+                "name": file_name,
+                "season": season,
+                "episode": episode,
+                "link": file['link']
+            })
+        else:
+            # Si no es una serie, es una película
+            movies.append(file)
+
+    # Ordenar episodios dentro de cada serie por temporada y episodio
+    for series_name in series:
+        series[series_name].sort(key=lambda x: (x['season'], x['episode']))
+
+    return movies, series
 # Función para clasificar archivos por calidad
 def classify_files_by_quality(files):
     quality_groups = {"4k": [], "1080p": [], "Otra calidad": []}
@@ -172,43 +208,74 @@ def show_real_debrid_files():
         st.write("No se encontraron archivos en Real Debrid.")
         return
 
-    # Clasificar archivos por calidad
-    quality_groups = classify_files_by_quality(files)
+    # Clasificar archivos en películas y series
+    movies, series = classify_movies_and_series(files)
+
+    # Selección de películas o series
+    tipo_archivo = st.radio("¿Qué deseas ver?", ("Películas", "Series"))
+
+    if tipo_archivo == "Películas":
+        # Clasificar las películas por calidad
+        quality_groups = classify_files_by_quality(movies)
+        
+        # Selección de calidad
+        calidad_seleccionada = st.selectbox("Selecciona una calidad:", ["4k", "1080p", "Otra calidad"])
+
+        # Mostrar solo los archivos de la calidad seleccionada
+        filtered_files = quality_groups[calidad_seleccionada]
+        
+        if filtered_files:
+            # Mostrar archivos en un menú desplegable
+            file_options = [f"{file['name']}" for file in filtered_files]
+            selected_file = st.selectbox("Selecciona una película:", file_options)
+
+            # Obtener la información del archivo seleccionado
+            selected_file_info = next(file for file in filtered_files if file['name'] == selected_file)
+            
+            # Extraer el nombre del archivo después del último "/"
+            file_name = selected_file_info['name'].rstrip('/')  # Asegurarse de que no termine en "/"
+            
+            # Verificar si el nombre contiene ".mkv", si no lo tiene, añadirlo
+            if not file_name.lower().endswith(".mkv"):
+                file_name += ".mkv"
+            
+            # Concatenar el nombre del archivo con el enlace
+            download_link = f"{selected_file_info['link']}{file_name}"
+            
+            # Mostrar el enlace de descarga modificado y la calidad del archivo
+            st.write(f"Enlace de descarga: {download_link}")
+            st.write(f"Calidad: {calidad_seleccionada}")
+            
+            # Añadir un campo de texto con el enlace (esto puede usarse si el usuario prefiere copiar manualmente)
+            st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
+        else:
+            st.write(f"No se encontraron archivos en la calidad {calidad_seleccionada}.")
     
-    # Selección de calidad
-    calidad_seleccionada = st.selectbox("Selecciona una calidad:", ["4k", "1080p", "Otra calidad"])
-
-    # Mostrar solo los archivos de la calidad seleccionada
-    filtered_files = quality_groups[calidad_seleccionada]
-    
-    if filtered_files:
-        # Mostrar archivos en un menú desplegable
-        file_options = [f"{file['name']}" for file in filtered_files]
-        selected_file = st.selectbox("Selecciona un archivo:", file_options)
-
-        # Obtener la información del archivo seleccionado
-        selected_file_info = next(file for file in filtered_files if file['name'] == selected_file)
-        
-        # Extraer el nombre del archivo después del último "/"
-        file_name = selected_file_info['name'].rstrip('/')  # Asegurarse de que no termine en "/"
-        
-        # Verificar si el nombre contiene ".mkv", si no lo tiene, añadirlo
-        if not file_name.lower().endswith(".mkv"):
-            file_name += ".mkv"
-        
-        # Concatenar el nombre del archivo con el enlace
-        download_link = f"{selected_file_info['link']}{file_name}"
-        
-        # Mostrar el enlace de descarga modificado y la calidad del archivo
-
-        st.write(f"Calidad: {calidad_seleccionada}")
-        
-        # Añadir un campo de texto con el enlace (esto puede usarse si el usuario prefiere copiar manualmente)
-        st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
     else:
-        st.write(f"No se encontraron archivos en la calidad {calidad_seleccionada}.")
+        # Agrupar las series por nombre
+        series_names = list(series.keys())
+        series_seleccionada = st.selectbox("Selecciona una serie:", series_names)
 
+        if series_seleccionada:
+            # Obtener los episodios de la serie seleccionada
+            episodes = series[series_seleccionada]
+            episode_options = [f"Temporada {ep['season']} Episodio {ep['episode']}" for ep in episodes]
+            selected_episode = st.selectbox("Selecciona un episodio:", episode_options)
 
+            # Obtener la información del episodio seleccionado
+            selected_episode_info = episodes[episode_options.index(selected_episode)]
+            
+            # Extraer el nombre del archivo y añadir ".mkv" si no está
+            file_name = selected_episode_info['name']
+            if not file_name.lower().endswith(".mkv"):
+                file_name += ".mkv"
+            
+            # Concatenar el nombre del archivo con el enlace
+            download_link = f"{selected_episode_info['link']}{file_name}"
+            
+            # Mostrar el enlace de descarga del episodio
+            st.write(f"Enlace de descarga: {download_link}")
+            st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
 
 # Función principal
 def main():
