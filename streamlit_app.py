@@ -271,7 +271,10 @@ def show_real_debrid_files():
             # Obtener los episodios de la serie seleccionada
             episodes = series[series_seleccionada]
             episode_options = [f"Temporada {ep['season']} Episodio {ep['episode']}" for ep in episodes]
-            selected_episode = st.selectbox("Selecciona un episodio:", episode_options)
+            selected_episode = st.selectbox(
+    "Selecciona un episodio:",
+    [f"Temporada {ep['season']} Episodio {ep['episode']} - {ep['quality']}" for ep in episodes]
+)
 
             # Obtener la información del episodio seleccionado
             selected_episode_info = episodes[episode_options.index(selected_episode)]
