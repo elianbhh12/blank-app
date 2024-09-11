@@ -212,25 +212,29 @@ def classify_files_by_quality(files):
     return quality_groups
 
 
-# Función mejorada para extraer el título y año de series
-def extract_series_title_and_year(filename):
-    # El patrón busca un título que esté seguido por SXXEXX y un año
-    match = re.match(r'(.+)\.S\d{2}E\d{2}\.(\d{4})', filename)
+# Función para extraer el título y año de las películas, ignorando términos innecesarios
+def extract_movie_title_and_year(filename):
+    # Remover la extensión y términos como WEB-DL, 1080p, Dual-Lat, etc.
+    clean_filename = re.sub(r'\.(WEB-DL|1080p|2160p|720p|Dual|Lat|Cast|ESP).*', '', filename)
+    
+    # Dividir en partes por año (asume que el año está en formato de cuatro dígitos)
+    match = re.match(r'(.+)\.(\d{4})', clean_filename)
     if match:
-        title = match.group(1)  # Obtener el título antes del número de temporada y episodio
+        title = match.group(1)  # Obtener la parte del título antes del año
         title = title.replace('.', ' ')  # Reemplazar puntos por espacios
         year = match.group(2)  # Obtener el año
         return title.strip(), year
     return filename.strip(), None
 
-# Función mejorada para extraer el título y año de películas
-def extract_movie_title_and_year(filename):
-    # Remover la extensión y dividir en partes por año (asume que el año está en formato de cuatro dígitos)
-    match = re.match(r'(.+)\.(\d{4})', filename)
+# Función para extraer el título y año de las series
+def extract_series_title_and_year(filename):
+    # El patrón busca un título que esté seguido por SXXEXX y un año
+    clean_filename = re.sub(r'\.(WEB-DL|1080p|2160p|720p|Dual|Lat|Cast|ESP).*', '', filename)
+    
+    match = re.match(r'(.+)\.S\d{2}E\d{2}\.(\d{4})', clean_filename)
     if match:
-        title = match.group(1)  # Obtener la parte del título antes del año
-        # Reemplazar puntos o guiones bajos por espacios
-        title = title.replace('.', ' ').replace('_', ' ')
+        title = match.group(1)  # Obtener el título antes del número de temporada y episodio
+        title = title.replace('.', ' ')  # Reemplazar puntos por espacios
         year = match.group(2)  # Obtener el año
         return title.strip(), year
     return filename.strip(), None
@@ -240,13 +244,13 @@ def get_tmdb_info(title, content_type='movie'):
     api_key = '242e044e9ed025098133698da4df3b87'
     search_url = f"https://api.themoviedb.org/3/search/{content_type}?api_key={api_key}&query={urllib.parse.quote(title)}&language=es-ES"
     
-    st.write(f"Buscando información de TMDB para: {title}")  # Para depuración
-    response = requests.get(search_url)
-    st.write(f"URL consultada: {search_url}")  # Para depuración
+    st.write(f"Buscando información de TMDB para: {title}")  # Mostrar el título buscado
+    st.write(f"URL consultada: {search_url}")  # Mostrar la URL consultada
 
+    response = requests.get(search_url)
     if response.status_code == 200:
         data = response.json()
-        st.write(f"Respuesta de TMDB: {data}")  # Para depuración, ver la respuesta completa
+        st.write(f"Respuesta de TMDB: {data}")  # Mostrar la respuesta completa para depuración
         if data['results']:
             result = data['results'][0]  # Tomar el primer resultado
             info = {
@@ -256,13 +260,11 @@ def get_tmdb_info(title, content_type='movie'):
             }
             return info
         else:
-            st.write("No se encontraron resultados en TMDB.")  # Para depuración
+            st.write("No se encontraron resultados en TMDB.")
     else:
-        st.write(f"Error al consultar TMDB: {response.status_code}")  # Para depuración
-
+        st.write(f"Error al consultar TMDB: {response.status_code}")
     return None
 
-# Función para mostrar archivos de Real Debrid y separar por calidad
 # Función para mostrar archivos de Real Debrid y separar por calidad
 def show_real_debrid_files():
     st.write("Archivos disponibles:")
@@ -352,6 +354,7 @@ def show_real_debrid_files():
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
             download_link = f"{selected_episode_info['link']}{file_name}"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
+
 
 
 
