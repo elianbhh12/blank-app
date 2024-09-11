@@ -200,7 +200,7 @@ def show_real_debrid_files():
         download_link = f"{selected_file_info['link']}{file_name}"
         
         # Mostrar el enlace de descarga modificado y la calidad del archivo
-        st.write(f"Enlace de descarga: {download_link}")
+
         st.write(f"Calidad: {calidad_seleccionada}")
         
         # Añadir un campo de texto con el enlace (esto puede usarse si el usuario prefiere copiar manualmente)
