@@ -244,8 +244,8 @@ def get_tmdb_info(title, content_type='movie'):
     api_key = '242e044e9ed025098133698da4df3b87'
     search_url = f"https://api.themoviedb.org/3/search/{content_type}?api_key={api_key}&query={urllib.parse.quote(title)}&language=es-ES"
     
-    st.write(f"Buscando información de TMDB para: {title}")  # Mostrar el título buscado
-    st.write(f"URL consultada: {search_url}")  # Mostrar la URL consultada
+   # st.write(f"Buscando información de TMDB para: {title}")  # Mostrar el título buscado
+   # st.write(f"URL consultada: {search_url}")  # Mostrar la URL consultada
 
     response = requests.get(search_url)
     if response.status_code == 200:
