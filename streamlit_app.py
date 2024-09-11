@@ -212,6 +212,18 @@ def classify_files_by_quality(files):
     return quality_groups
 
 
+# Función mejorada para extraer el título y año de series
+def extract_series_title_and_year(filename):
+    # El patrón busca un título que esté seguido por SXXEXX y un año
+    match = re.match(r'(.+)\.S\d{2}E\d{2}\.(\d{4})', filename)
+    if match:
+        title = match.group(1)  # Obtener el título antes del número de temporada y episodio
+        title = title.replace('.', ' ')  # Reemplazar puntos por espacios
+        year = match.group(2)  # Obtener el año
+        return title.strip(), year
+    return filename.strip(), None
+
+# Función mejorada para extraer el título y año de películas
 def extract_movie_title_and_year(filename):
     # Remover la extensión y dividir en partes por año (asume que el año está en formato de cuatro dígitos)
     match = re.match(r'(.+)\.(\d{4})', filename)
@@ -219,17 +231,6 @@ def extract_movie_title_and_year(filename):
         title = match.group(1)  # Obtener la parte del título antes del año
         # Reemplazar puntos o guiones bajos por espacios
         title = title.replace('.', ' ').replace('_', ' ')
-        year = match.group(2)  # Obtener el año
-        return title.strip(), year
-    return filename.strip(), None
-
-# Función mejorada para extraer el título y año de series
-def extract_series_title_and_year(filename):
-    # El patrón busca un título que esté seguido por SXXEXX y un año
-    match = re.match(r'(.+)\.S\d{2}E\d{2}\.(\d{4})', filename)
-    if match:
-        title = match.group(1)  # Obtener el título antes del número de temporada y episodio
-        title = title.replace('.', ' ').replace('_', ' ')  # Reemplazar puntos por espacios
         year = match.group(2)  # Obtener el año
         return title.strip(), year
     return filename.strip(), None
@@ -261,6 +262,7 @@ def get_tmdb_info(title, content_type='movie'):
 
     return None
 
+# Función para mostrar archivos de Real Debrid y separar por calidad
 # Función para mostrar archivos de Real Debrid y separar por calidad
 def show_real_debrid_files():
     st.write("Archivos disponibles:")
@@ -350,7 +352,6 @@ def show_real_debrid_files():
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
             download_link = f"{selected_episode_info['link']}{file_name}"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
-
 
 
 
