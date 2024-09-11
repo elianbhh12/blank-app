@@ -149,6 +149,7 @@ def get_real_debrid_files(url=REAL_DEBRID_FOLDER_URL):
     return files
 
 # Función para mostrar archivos de Real Debrid y entrar en carpetas si se selecciona una
+# Función para mostrar archivos de Real Debrid y entrar en carpetas si se selecciona una
 def show_real_debrid_files():
     st.write("Archivos disponibles en Real Debrid:")
     files = get_real_debrid_files()
@@ -169,13 +170,34 @@ def show_real_debrid_files():
     
     # Concatenar el nombre del archivo con la extensión ".mkv"
     download_link = f"{selected_file_info['link']}{file_name}.mkv"
-    # Mostrar un campo de texto con el enlace para que sea fácilmente copiable
+    
+    # Mostrar enlace de descarga modificado
+    st.write(f"Enlace de descarga: {download_link}")
+    
+    # Añadir un campo de texto con el enlace (esto puede usarse si el usuario prefiere copiar manualmente)
     st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
 
-    # Añadir un botón para dar a entender que se puede copiar
+    # Crear un botón para copiar el enlace
     if st.button("Copiar enlace de descarga"):
-        st.write("El enlace ha sido copiado. Usa Ctrl+C o haz clic derecho para copiar.")
+        copy_to_clipboard(download_link)
 
+
+# Función para copiar el enlace al portapapeles usando JavaScript
+def copy_to_clipboard(text):
+    st.markdown(f"""
+    <script>
+        function copyToClipboard(text) {{
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('¡Enlace copiado al portapapeles!');
+        }}
+        copyToClipboard("{text}");
+    </script>
+    """, unsafe_allow_html=True)
 
 
 # Función principal
