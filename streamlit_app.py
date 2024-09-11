@@ -290,6 +290,10 @@ def show_real_debrid_files():
             st.write(f"Enlace de descarga: {download_link}")
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
 
+            # Mostrar la calidad del episodio seleccionado
+            st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
+
+
 
 # Función principal
 def main():
