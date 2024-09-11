@@ -169,10 +169,6 @@ def show_real_debrid_files():
     
     # Concatenar el nombre del archivo con la extensión ".mkv"
     download_link = f"{selected_file_info['link']}{file_name}.mkv"
-    
-    # Mostrar enlace de descarga modificado
-    st.write(f"Enlace de descarga: {download_link}")
-    
     # Mostrar un campo de texto con el enlace para que sea fácilmente copiable
     st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
 
