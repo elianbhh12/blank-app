@@ -212,6 +212,17 @@ def classify_files_by_quality(files):
     return quality_groups
 
 
+def extract_title_from_filename(filename):
+    # Remover la extensión y dividir en partes por año (asume que el año está en formato de cuatro dígitos)
+    match = re.match(r'(.+)\.(\d{4})', filename)
+    if match:
+        title = match.group(1)  # Obtener la parte del título antes del año
+        # Reemplazar puntos o guiones bajos por espacios
+        title = title.replace('.', ' ').replace('_', ' ')
+        return title.strip()
+    return filename.strip()
+
+# Función para obtener información de TMDB
 def get_tmdb_info(title, content_type='movie'):
     api_key = '242e044e9ed025098133698da4df3b87'
     search_url = f"https://api.themoviedb.org/3/search/{content_type}?api_key={api_key}&query={urllib.parse.quote(title)}"
@@ -228,7 +239,6 @@ def get_tmdb_info(title, content_type='movie'):
             }
             return info
     return None
-
 # Función para mostrar archivos de Real Debrid y separar por calidad
 def show_real_debrid_files():
     st.write("Archivos disponibles:")
@@ -262,15 +272,12 @@ def show_real_debrid_files():
             # Obtener la información del archivo seleccionado
             selected_file_info = next(file for file in filtered_files if file['name'] == selected_file)
             
-            # Extraer el nombre del archivo después del último "/"
+            # Extraer el nombre del archivo y obtener el título
             file_name = selected_file_info['name'].rstrip('/')  # Asegurarse de que no termine en "/"
-            
-            # Verificar si el nombre contiene ".mkv", si no lo tiene, añadirlo
-            if not file_name.lower().endswith(".mkv"):
-                file_name += ".mkv"
+            movie_title = extract_title_from_filename(file_name)  # Extraer el título correctamente
             
             # Mostrar la información de la película desde TMDB
-            movie_info = get_tmdb_info(file_name.split('.')[0], 'movie')  # Usar el nombre del archivo para buscar en TMDB
+            movie_info = get_tmdb_info(movie_title, 'movie')  # Usar el nombre del archivo para buscar en TMDB
             if movie_info:
                 st.write(f"**Título:** {movie_info['title']}")
                 st.write(f"**Sinopsis:** {movie_info['overview']}")
@@ -298,15 +305,16 @@ def show_real_debrid_files():
             selected_episode = st.selectbox("Selecciona un episodio:", episode_options)
 
             # Obtener la información del episodio seleccionado
-            selected_episode_info = next(ep for ep in episodes if f"Temporada {ep['season']} Episodio {ep['episode']}" == selected_episode)
+            selected_episode_info = next(
+                ep for ep in episodes if f"Temporada {ep['season']} Episodio {ep['episode']}" == selected_episode
+            )
             
             # Extraer el nombre del archivo y añadir ".mkv" si no está
             file_name = selected_episode_info['name']
-            if not file_name.lower().endswith(".mkv"):
-                file_name += ".mkv"
+            series_title = extract_title_from_filename(series_seleccionada)
             
             # Mostrar la información de la serie desde TMDB
-            series_info = get_tmdb_info(series_seleccionada, 'tv')  # Usar el nombre de la serie para buscar en TMDB
+            series_info = get_tmdb_info(series_title, 'tv')  # Usar el nombre de la serie para buscar en TMDB
             if series_info:
                 st.write(f"**Título:** {series_info['title']}")
                 st.write(f"**Sinopsis:** {series_info['overview']}")
@@ -318,6 +326,7 @@ def show_real_debrid_files():
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
             download_link = f"{selected_episode_info['link']}{file_name}"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
+
 
 
 
