@@ -148,6 +148,21 @@ def get_real_debrid_files(url=REAL_DEBRID_FOLDER_URL):
 
     return files
 
+# Función para clasificar archivos por calidad
+def classify_files_by_quality(files):
+    quality_groups = {"4k": [], "1080p": [], "Otra calidad": []}
+
+    for file in files:
+        file_name = file['name'].rstrip('/')
+        
+        if "4k" in file_name.lower() or "2160p" in file_name.lower():
+            quality_groups["4k"].append(file)
+        elif "1080p" in file_name.lower():
+            quality_groups["1080p"].append(file)
+        else:
+            quality_groups["Otra calidad"].append(file)
+
+    return quality_groups
 # Función para mostrar archivos de Real Debrid y separar por calidad
 def show_real_debrid_files():
     st.write("Archivos disponibles en Real Debrid:")
@@ -157,37 +172,41 @@ def show_real_debrid_files():
         st.write("No se encontraron archivos en Real Debrid.")
         return
 
-    # Mostrar archivos en un menú desplegable
-    file_options = [f"{file['name']}" for file in files]
-    selected_file = st.selectbox("Selecciona un archivo:", file_options)
+    # Clasificar archivos por calidad
+    quality_groups = classify_files_by_quality(files)
+    
+    # Selección de calidad
+    calidad_seleccionada = st.selectbox("Selecciona una calidad:", ["4k", "1080p", "Otra calidad"])
 
-    # Obtener la información del archivo seleccionado
-    selected_file_info = next(file for file in files if file['name'] == selected_file)
+    # Mostrar solo los archivos de la calidad seleccionada
+    filtered_files = quality_groups[calidad_seleccionada]
     
-    # Extraer el nombre del archivo después del último "/"
-    file_name = selected_file_info['name'].rstrip('/')  # Asegurarse de que no termine en "/"
-    
-    # Verificar si el nombre contiene ".mkv", si no lo tiene, añadirlo
-    if not file_name.lower().endswith(".mkv"):
-        file_name += ".mkv"
-    
-    # Clasificar la calidad del archivo
-    if "4k" in file_name.lower() or "2160p" in file_name.lower():
-        calidad = "4k"
-    elif "1080p" in file_name.lower():
-        calidad = "1080p"
+    if filtered_files:
+        # Mostrar archivos en un menú desplegable
+        file_options = [f"{file['name']}" for file in filtered_files]
+        selected_file = st.selectbox("Selecciona un archivo:", file_options)
+
+        # Obtener la información del archivo seleccionado
+        selected_file_info = next(file for file in filtered_files if file['name'] == selected_file)
+        
+        # Extraer el nombre del archivo después del último "/"
+        file_name = selected_file_info['name'].rstrip('/')  # Asegurarse de que no termine en "/"
+        
+        # Verificar si el nombre contiene ".mkv", si no lo tiene, añadirlo
+        if not file_name.lower().endswith(".mkv"):
+            file_name += ".mkv"
+        
+        # Concatenar el nombre del archivo con el enlace
+        download_link = f"{selected_file_info['link']}{file_name}"
+        
+        # Mostrar el enlace de descarga modificado y la calidad del archivo
+        st.write(f"Enlace de descarga: {download_link}")
+        st.write(f"Calidad: {calidad_seleccionada}")
+        
+        # Añadir un campo de texto con el enlace (esto puede usarse si el usuario prefiere copiar manualmente)
+        st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
     else:
-        calidad = "Otra calidad"
-
-    # Concatenar el nombre del archivo con el enlace
-    download_link = f"{selected_file_info['link']}{file_name}"
-    
-    # Mostrar el enlace de descarga modificado y la calidad del archivo
-    st.write(f"Enlace de descarga: {download_link}")
-    st.write(f"Calidad: {calidad}")
-    
-    # Añadir un campo de texto con el enlace (esto puede usarse si el usuario prefiere copiar manualmente)
-    st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
+        st.write(f"No se encontraron archivos en la calidad {calidad_seleccionada}.")
 
 
 
