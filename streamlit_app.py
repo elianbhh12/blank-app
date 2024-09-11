@@ -313,7 +313,7 @@ def show_real_debrid_files():
                     st.image(poster_url, width=200)
 
             # Concatenar el nombre del archivo con el enlace
-            download_link = f"{selected_file_info['link']}{file_name}.mkv"
+            download_link = f"{selected_file_info['link']}{file_name}"
             
             # Mostrar el enlace de descarga modificado
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
