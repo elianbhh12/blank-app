@@ -352,7 +352,7 @@ def show_real_debrid_files():
             
             # Mostrar la calidad del episodio seleccionado
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
-            download_link = f"{selected_episode_info['link']}{file_name}"
+            download_link = f"{selected_episode_info['link']}{file_name}..mkv"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
 
 
