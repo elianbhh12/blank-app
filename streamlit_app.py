@@ -285,7 +285,7 @@ def show_real_debrid_files():
         quality_groups = classify_files_by_quality(movies)
         
         # Selección de calidad
-        calidad_seleccionada = st.radio("Selecciona una calidad:", ["4k", "1080p", "Otra calidad"])
+        calidad_seleccionada = st.selectbox("Selecciona una calidad:", ["4k", "1080p", "Otra calidad"], key="quality_selection", index=0)
 
         # Mostrar solo los archivos de la calidad seleccionada
         filtered_files = quality_groups[calidad_seleccionada]
@@ -293,7 +293,7 @@ def show_real_debrid_files():
         if filtered_files:
             # Mostrar archivos en un menú desplegable
             file_options = [f"{file['name']}" for file in filtered_files]
-            selected_file = st.radio("Selecciona una película:", file_options)  # Usar radio para no permitir escribir
+            selected_file = st.selectbox("Selecciona una película:", file_options, key="movie_selection", index=0)
 
             # Obtener la información del archivo seleccionado
             selected_file_info = next(file for file in filtered_files if file['name'] == selected_file)
@@ -322,13 +322,13 @@ def show_real_debrid_files():
     else:
         # Agrupar las series por nombre
         series_names = list(series.keys())
-        series_seleccionada = st.radio("Selecciona una serie:", series_names)
+        series_seleccionada = st.selectbox("Selecciona una serie:", series_names, key="series_selection", index=0)
 
         if series_seleccionada:
             # Obtener los episodios de la serie seleccionada
             episodes = series[series_seleccionada]
             episode_options = [f"Temporada {ep['season']} Episodio {ep['episode']}" for ep in episodes]
-            selected_episode = st.radio("Selecciona un episodio:", episode_options)  # Usar radio para no permitir escribir
+            selected_episode = st.selectbox("Selecciona un episodio:", episode_options, key="episode_selection", index=0)
 
             # Obtener la información del episodio seleccionado
             selected_episode_info = next(
@@ -352,6 +352,7 @@ def show_real_debrid_files():
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
             download_link = f"{selected_episode_info['link']}{file_name}.mkv"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
+
 
 
 
