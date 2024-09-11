@@ -212,20 +212,32 @@ def classify_files_by_quality(files):
     return quality_groups
 
 
-def extract_title_from_filename(filename):
+def extract_movie_title_and_year(filename):
     # Remover la extensión y dividir en partes por año (asume que el año está en formato de cuatro dígitos)
     match = re.match(r'(.+)\.(\d{4})', filename)
     if match:
         title = match.group(1)  # Obtener la parte del título antes del año
         # Reemplazar puntos o guiones bajos por espacios
         title = title.replace('.', ' ').replace('_', ' ')
-        return title.strip()
-    return filename.strip()
+        year = match.group(2)  # Obtener el año
+        return title.strip(), year
+    return filename.strip(), None
+
+# Función mejorada para extraer el título y año de series
+def extract_series_title_and_year(filename):
+    # El patrón busca un título que esté seguido por SXXEXX y un año
+    match = re.match(r'(.+)\.S\d{2}E\d{2}\.(\d{4})', filename)
+    if match:
+        title = match.group(1)  # Obtener el título antes del número de temporada y episodio
+        title = title.replace('.', ' ').replace('_', ' ')  # Reemplazar puntos por espacios
+        year = match.group(2)  # Obtener el año
+        return title.strip(), year
+    return filename.strip(), None
 
 # Función para obtener información de TMDB
 def get_tmdb_info(title, content_type='movie'):
     api_key = '242e044e9ed025098133698da4df3b87'
-    search_url = f"https://api.themoviedb.org/3/search/{content_type}?api_key={api_key}&query={urllib.parse.quote(title)}"
+    search_url = f"https://api.themoviedb.org/3/search/{content_type}?api_key={api_key}&query={urllib.parse.quote(title)}&language=es-ES"
     
     response = requests.get(search_url)
     if response.status_code == 200:
@@ -234,11 +246,12 @@ def get_tmdb_info(title, content_type='movie'):
             result = data['results'][0]  # Tomar el primer resultado
             info = {
                 'title': result.get('title', result.get('name', '')),
-                'overview': result.get('overview', 'No description available.'),
+                'overview': result.get('overview', 'No hay descripción disponible.'),
                 'poster_path': result.get('poster_path', '')
             }
             return info
     return None
+
 # Función para mostrar archivos de Real Debrid y separar por calidad
 def show_real_debrid_files():
     st.write("Archivos disponibles:")
@@ -272,14 +285,14 @@ def show_real_debrid_files():
             # Obtener la información del archivo seleccionado
             selected_file_info = next(file for file in filtered_files if file['name'] == selected_file)
             
-            # Extraer el nombre del archivo y obtener el título
+            # Extraer el nombre del archivo y obtener el título y año
             file_name = selected_file_info['name'].rstrip('/')  # Asegurarse de que no termine en "/"
-            movie_title = extract_title_from_filename(file_name)  # Extraer el título correctamente
+            movie_title, movie_year = extract_movie_title_and_year(file_name)  # Extraer título y año correctamente
             
             # Mostrar la información de la película desde TMDB
-            movie_info = get_tmdb_info(movie_title, 'movie')  # Usar el nombre del archivo para buscar en TMDB
+            movie_info = get_tmdb_info(movie_title, 'movie')  # Usar el título de la película para buscar en TMDB
             if movie_info:
-                st.write(f"**Título:** {movie_info['title']}")
+                st.write(f"**Título:** {movie_info['title']} ({movie_year})")
                 st.write(f"**Sinopsis:** {movie_info['overview']}")
                 if movie_info['poster_path']:
                     poster_url = f"https://image.tmdb.org/t/p/w500{movie_info['poster_path']}"
@@ -309,14 +322,14 @@ def show_real_debrid_files():
                 ep for ep in episodes if f"Temporada {ep['season']} Episodio {ep['episode']}" == selected_episode
             )
             
-            # Extraer el nombre del archivo y añadir ".mkv" si no está
+            # Extraer el nombre del archivo y obtener el título y año
             file_name = selected_episode_info['name']
-            series_title = extract_title_from_filename(series_seleccionada)
+            series_title, series_year = extract_series_title_and_year(series_seleccionada)
             
             # Mostrar la información de la serie desde TMDB
-            series_info = get_tmdb_info(series_title, 'tv')  # Usar el nombre de la serie para buscar en TMDB
+            series_info = get_tmdb_info(series_title, 'tv')  # Usar el título de la serie para buscar en TMDB
             if series_info:
-                st.write(f"**Título:** {series_info['title']}")
+                st.write(f"**Título:** {series_info['title']} ({series_year})")
                 st.write(f"**Sinopsis:** {series_info['overview']}")
                 if series_info['poster_path']:
                     poster_url = f"https://image.tmdb.org/t/p/w500{series_info['poster_path']}"
@@ -326,7 +339,6 @@ def show_real_debrid_files():
             st.write(f"Calidad del episodio: {selected_episode_info['quality']}")
             download_link = f"{selected_episode_info['link']}{file_name}"
             st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
-
 
 
 
