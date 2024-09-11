@@ -172,6 +172,14 @@ def show_real_debrid_files():
     
     # Mostrar enlace de descarga modificado
     st.write(f"Enlace de descarga: {download_link}")
+    
+    # Mostrar un campo de texto con el enlace para que sea fácilmente copiable
+    st.text_input("Enlace de descarga para copiar:", value=download_link, key="download_link")
+
+    # Añadir un botón para dar a entender que se puede copiar
+    if st.button("Copiar enlace de descarga"):
+        st.write("El enlace ha sido copiado. Usa Ctrl+C o haz clic derecho para copiar.")
+
 
 
 # Función principal
